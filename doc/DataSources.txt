@@ -67,6 +67,7 @@ A sample PostGIS configuration might look like:
     type=PostGIS
     dsn=host=localhost dbname=mydata user=myuser password=1234
     layer=mylayer
+    schema=posgresql_schema_name
     fid=gid #defaults to ogc_fid
     geometry=wkb_geometry # defaults to the_geom
     srid=26910 #defaults to 4326
