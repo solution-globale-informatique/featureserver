@@ -50,7 +50,7 @@ class PostGIS (DataSource):
         self.table          = '%s"."%s' % (self.schema, self.table_name) if self.schema else '%s' % self.table_name
         self.fid_col        = fid
         self.encoding       = encoding
-        self.geom_col       = geometry
+        self.geom_col       = '"%s"' % geometry
         self.order          = order
         self.srid           = srid
         self.srid_out       = srid_out
@@ -119,7 +119,7 @@ class PostGIS (DataSource):
                 else:
                     predicates.append("%s = %s" % pair)
         if feature.geometry and feature.geometry.has_key("coordinates"):
-            predicates.append(" \"%s\" = ST_SetSRID('%s'::geometry, %s) " % (self.geom_col, WKT.to_wkt(feature.geometry), self.srid))
+            predicates.append(" %s = ST_SetSRID('%s'::geometry, %s) " % (self.geom_col, WKT.to_wkt(feature.geometry), self.srid))
         return predicates
 
     def feature_values (self, feature):
@@ -217,7 +217,7 @@ class PostGIS (DataSource):
         cursor = self.db.cursor()
 
         if action.id is not None:
-            sql = "SELECT ST_AsText(ST_Transform(\"%s\", %d)) as fs_text_geom, " % (self.geom_col, int(self.srid_out))
+            sql = "SELECT ST_AsText(ST_Transform(%s, %d)) as fs_text_geom, " % (self.geom_col, int(self.srid_out))
 
             if hasattr(self, 'version'):
                 sql += "%s as version, " % self.version
@@ -254,9 +254,9 @@ class PostGIS (DataSource):
                     else:
                         attrs[key] = value
             if action.bbox:
-                filters.append( "\"%s\" && ST_Transform(ST_SetSRID('BOX3D(%f %f,%f %f)'::box3d, %s), %s) AND ST_Intersects(\"%s\", ST_Transform(ST_SetSRID('BOX3D(%f %f,%f %f)'::box3d, %s), %s))" % (
+                filters.append( "%s && ST_Transform(ST_SetSRID('BOX3D(%f %f,%f %f)'::box3d, %s), %s) AND ST_Intersects(%s, ST_Transform(ST_SetSRID('BOX3D(%f %f,%f %f)'::box3d, %s), %s))" % (
                                         (self.geom_col,) + tuple(action.bbox) + (self.srid_out,) + (self.srid,) + (self.geom_col,) + (tuple(action.bbox) + (self.srid_out,) + (self.srid,))))
-            sql = "SELECT ST_AsText(ST_Transform(\"%s\", %d)) as fs_text_geom, " % (self.geom_col, int(self.srid_out))
+            sql = "SELECT ST_AsText(ST_Transform(%s, %d)) as fs_text_geom, " % (self.geom_col, int(self.srid_out))
             if hasattr(self, 'ele'):
                 sql += "%s as ele, " % self.ele
             if hasattr(self, 'version'):
