@@ -322,7 +322,7 @@ class PostGIS (DataSource):
             id = props[self.fid_col]
             del props[self.fid_col]
             if self.attribute_cols == '*':
-                del props[self.geom_col]
+                del props[self.geom_col.replace('"', '')]
             del props['fs_text_geom']
             for key, value in props.items():
                 if isinstance(value, str):
