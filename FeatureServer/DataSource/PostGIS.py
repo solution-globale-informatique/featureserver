@@ -209,7 +209,19 @@ class PostGIS (DataSource):
                 cursor.execute(str(sql), {self.fid_col: action.id})
 
             return self.select(action)
+        
+        else:
+            deleted_feature = self.select(action)
 
+            sql = "DELETE FROM \"%s\" WHERE \"%s\" = %%(%s)d" % ( self.table, self.fid_col, self.fid_col )
+            cursor = self.db.cursor()
+            try:
+                cursor.execute(str(sql) % {self.fid_col: action.id})
+            except:
+                cursor.execute(str(sql), {self.fid_col: action.id})
+
+            return deleted_feature
+            
         return None
 
 
